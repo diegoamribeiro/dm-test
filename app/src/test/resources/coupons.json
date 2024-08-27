@@ -1,0 +1,4 @@
+[
+  { "description": "10% off no se próximo pedido!", "code": "TOMA10", "isUsed": false },
+  { "description": "Entrega grátis em pedidos acima de R$30", "code": "MOTOBOY", "isUsed": true }
+]
