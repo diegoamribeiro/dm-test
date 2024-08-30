@@ -46,24 +46,8 @@ As **Kotlin Coroutines** gerenciam operações assíncronas de forma eficiente, 
 
 ## Esboço da Arquitetura
 
-+------------------+       +------------------+        +----------------+
-|       View       |       |     ViewModel    |        |   Repositories |
-| (Activity/Frag)  | <-->  |                  | <----> |   (Interfaces) |
-+------------------+       +------------------+        +----------------+
-^                             |
-|                             |
-v                             v
-+------------------+          +------------------+
-|    Use Cases     |          |   Data Sources    |
-| (Interactors)    | <------> |   (API, DB, etc.) |
-+------------------+          +------------------+
-^                             
-|                             
-v                             
-+------------------+
-|     Entities     |
-|   (Business)     |
-+------------------+
+![Preview](assets/clean_arch.png)
+
 
 ---
 
