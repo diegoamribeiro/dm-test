@@ -46,7 +46,7 @@ As **Kotlin Coroutines** gerenciam operações assíncronas de forma eficiente, 
 
 ## Esboço da Arquitetura
 
-![Preview](assets/clean_arch.png)
+![Preview](assets/clean_new_arch.png)
 
 
 ---
