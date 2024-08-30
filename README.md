@@ -1,43 +1,73 @@
-# Desafio Review Android Compose 
-## Coupon List Screen
-Este projeto contém uma tela exibindo uma lista de cupons para nosso app de delivery. 
-A tela permite que os usuários marquem cupons como usados em um checkbox.
 
-O arquivo figma com protótipo está na pasta [assets](assets/Coupons-Screen.fig)
+# Delivery Much
 
-![Preview](assets/screenshot.png)
+## Arquitetura
 
+### MVVM
+Apesar de algumas pessoas considerarem o MVI uma boa arquitetura para se trabalhar com Jetpack Compose, o Google não recomenda oficialmente essa arquitetura. Por outro lado, o **MVVM** é um padrão recomendado pelo Google e amplamente documentado, além de oferecer um excelente controle de estado quando usado em conjunto com `LiveData` ou `Flow`. Por isso, decidi utilizar o **MVVM**.
 
-### Objetivo:
-Sua tarefa é revisar o código existente para essa tela e identificar áreas para melhoria, possíveis falhas, qualquer coisa que achar interessante. 
-Considere as melhores práticas do Compose, gerenciamento de estado, arquiteturas, padrões de projeto, e qualidade geral do código.
+### Clean Architecture
+Escolhi o **Clean Architecture** por ser um padrão que separa bem as camadas e responsabilidades, mantendo alta coesão e baixo acoplamento. Mesmo em um projeto pequeno, usar o Clean Architecture o prepara para receber novas funcionalidades, garantindo escalabilidade.
 
-### Expectativa:
-Cada review depende de muitos fatores, quem escreveu o código, as condições do projeto, prazos, etc,
-Então não se preocupe com o quão crítico pode ser, fique livre e a vontade para comentar qualquer ponto e caso não se sinta a vontade, nos avise.
+### Injeção de Dependência
+Optei pelo **Koin** porque é uma DI leve orientada a Kotlin e fácil de configurar. Ele fornece um controle mais explícito, permitindo uma gestão mais transparente do que acontece no aplicativo, ao contrário do Hilt.
 
-### Entrega - Importante:
-Você não precisa escrever nenhum código para este desafio. Articular claramente suas ideias e soluções propostas é suficiente.
-Sinta-se à vontade para sugerir quaisquer bibliotecas, padrões ou técnicas que você acredita que melhorariam o código ou a experiência do usuário.
-Não há respostas certas ou erradas. Estamos interessados em conhecer seu processo de pensamento e visão geral.
+### Network
+Para a camada de rede, escolhi o **Ktor**, que tem ganhado aderência na comunidade por funcionar tanto como cliente quanto servidor. Não usei Retrofit porque este é um aplicativo para usuários de múltiplas plataformas (Android e iOS), e o Ktor prepara o app para uma futura migração para KMP, permitindo o compartilhamento de código entre plataformas.
 
-## Como entregar:
-Adicione suas ideias no readme ou no próprio código, escreva comentários, faça esboços, etc.
-1. Crie um repositório no seu github com o projeto do link recebido por email
-2. Crie um pull request no seu repositório para compartilhar suas ideias:
+### Room Database
+O **Room Database** é usado para armazenar localmente a lista de cupons, permitindo acesso offline e melhorando o desempenho ao reduzir chamadas de rede. Ele facilita a sincronização de dados, mantém o estado local (como cupons usados) e permite filtragem e ordenação rápidas, proporcionando uma experiência de usuário mais fluida e responsiva. Também é compatível com KMP.
 
-3. Você pode:
-   - Adicionar nossos usuários (enviados por email) ao seu repositório para avaliarmos suas ideias propostas. 
-   - Ou ainda se preferir apresentar pra gente num papo, avisa a gente.
+### Kotlin Coroutines
+As **Kotlin Coroutines** gerenciam operações assíncronas de forma eficiente, como chamadas de rede e acesso ao banco de dados, sem bloquear a UI. Elas facilitam a escrita de código conciso e legível para tarefas de longa duração, melhorando o desempenho e a responsividade do aplicativo. Além disso, simplificam o gerenciamento do fluxo de dados entre o ViewModel e a UI, garantindo atualizações suaves e reativas.
 
-### Bônus:
-- Pense em como você lidaria com um grande número de cupons de forma eficiente.
-- Que estratégias você usaria para garantir que a tela permaneça com bom desempenho mesmo com um grande conjunto de dados?
+---
 
-Imagine um cenário maior dessa tela, em que os cupons são retornados de uma api:
-1. o que você usaria de arquitetura?
-2. Algum padrão de projeto que acha que faz sentido ser adotado.
-3. Em relação a UI, alguma coisa mudaria se os dados viessem da api?
-4. Alguma(s) biblioteca(s) que faça sentido incorporar nesse caso?
-  
-Estamos ansiosos para ouvir suas ideias e soluções propostas!
+## Organização
+
+- [x] Seguir os princípios do Clean Architecture na árvore de pacotes: `data`, `domain`, `presentation` e seus respectivos pacotes internos.
+- [x] Criar arquivos conforme o Clean Architecture: `Service`, `DataSource`, `Repository`, `RepositoryImpl`, `UseCase`, `ViewModel`, cada um em seu local apropriado.
+- [x] Remover logs que podem ocasionar possíveis bugs.
+
+## UI
+
+- [x] Desmembrar os componentes da `MainActivity`, adicionando as funções composables ao pacote `components` dentro de `presentation`.
+- [x] Criar uma classe `Resource` para controle explícito das chamadas (Success, Loading, Error).
+- [x] Adicionar um pacote `utils` para conter extension functions ou funções comuns ao app.
+- [x] Componente principal do item que receberá os componentes abaixo:
+   - [x] Bordas tracejadas para simular papel destacável. (UX é tudo 😉)
+   - [x] Componente lateral esquerdo com o nome "CUPOM" em 90º.
+   - [x] Componente laranja abaixo do código para mostrar os detalhes do cupom.
+   - [x] Componente checkbox para selecionar o cupom usado.
+   - [x] Adicionar um filtro para visualizar apenas os cupons desejados, usados ou não.
+   - [x] Criar um componente de busca que permita encontrar o cupom pelo nome.
+
+---
+
+## Esboço da Arquitetura
+
++------------------+       +------------------+        +----------------+
+|       View       |       |     ViewModel    |        |   Repositories |
+| (Activity/Frag)  | <-->  |                  | <----> |   (Interfaces) |
++------------------+       +------------------+        +----------------+
+^                             |
+|                             |
+v                             v
++------------------+          +------------------+
+|    Use Cases     |          |   Data Sources    |
+| (Interactors)    | <------> |   (API, DB, etc.) |
++------------------+          +------------------+
+^                             
+|                             
+v                             
++------------------+
+|     Entities     |
+|   (Business)     |
++------------------+
+
+---
+
+## Protótipo do Figma
+
+![Preview](assets/screen_shot.png)
+
